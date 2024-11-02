@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slice/main.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'widgets.dart';
 
@@ -25,7 +26,12 @@ class MyCart extends StatelessWidget {
             child: Row(
               children: [
                 // Back Button (widgets.dart)
-                topButton(Icons.arrow_back_ios_new_rounded),
+                topButton(Icons.arrow_back_ios_new_rounded, () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyApp())
+                  );
+                }),
                 const Spacer(),
                 Text(
                   'Cart',
@@ -34,7 +40,7 @@ class MyCart extends StatelessWidget {
                 ),
                 const Spacer(),
                 // User Button (widgets.dart)
-                topButton(Icons.person),
+                topButton(Icons.person, () {}),
               ],
             ),
           ),

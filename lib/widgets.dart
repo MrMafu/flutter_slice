@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Widget topButton(IconData icon) {
+Widget topButton(IconData icon, VoidCallback navigate) {
   return Container(
     decoration: BoxDecoration(
       color: Colors.white,
@@ -15,8 +15,7 @@ Widget topButton(IconData icon) {
     ),
     child: IconButton(
       icon: Icon(icon),
-      onPressed: () => {},
+      onPressed: navigate,
     ),
   );
 }
-

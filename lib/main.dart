@@ -37,9 +37,9 @@ class _MyAppState extends State<MyApp> {
             margin: const EdgeInsets.all(20),
             child: Row(
               children: [
-                topButton(Icons.menu),
+                topButton(Icons.menu, () {}),
                 const Spacer(),
-                topButton(Icons.person),
+                topButton(Icons.person, () {}),
               ],
             ),
           ),

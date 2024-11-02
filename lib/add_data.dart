@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'widgets.dart';
+import 'food_data.dart';
 
 class MyAddData extends StatelessWidget {
   const MyAddData({super.key});
@@ -24,9 +25,14 @@ class MyAddData extends StatelessWidget {
             margin: const EdgeInsets.all(20),
             child: Row(
               children: [
-                topButton(Icons.arrow_back_ios_new_rounded),
+                topButton(Icons.arrow_back_ios_new_rounded, () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyData())
+                  );
+                }),
                 const Spacer(),
-                topButton(Icons.person),
+                topButton(Icons.person, () {}),
               ],
             ),
           ),

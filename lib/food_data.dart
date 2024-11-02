@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'widgets.dart';
+import 'main.dart';
 import 'add_data.dart';
 
 class MyData extends StatelessWidget {
@@ -26,10 +27,15 @@ class MyData extends StatelessWidget {
             child: Row(
               children: [
                 // Back Button (widgets.dart)
-                topButton(Icons.arrow_back_ios_new_rounded),
+                topButton(Icons.arrow_back_ios_new_rounded, () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyApp())
+                  );
+                }),
                 const Spacer(),
                 // User Button (widgets.dart)
-                topButton(Icons.person),
+                topButton(Icons.person, () {}),
               ],
             ),
           ),
