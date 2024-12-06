@@ -1,12 +1,25 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'cart.dart';
 import 'food_data.dart';
 import 'widgets.dart';
 
-void main() {
+Future<void> main() async {
+  await Supabase.initialize(
+    url: 'https://lrznhaxrcvcjomtxnfio.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxyem5oYXhyY3Zjam9tdHhuZmlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzM0ODYyMTIsImV4cCI6MjA0OTA2MjIxMn0.tIka0oPfqZrRnkvZed-pTOujrSMl5g3MQ5YiBFHxhhw',
+  );
+
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   runApp(const MyApp());
+  
+  FlutterNativeSplash.remove();
 }
+
+final supabase = Supabase.instance.client;
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -158,6 +171,36 @@ class _MyAppState extends State<MyApp> {
 
   Widget foodItem() {
     final foodList = [
+      {
+        'name': 'Burger King Medium',
+        'price': 'Rp. 50.000,00',
+        'image': 'assets/burger.png'
+      },
+      {
+        'name': 'Teh Botol',
+        'price': 'Rp. 4.000,00',
+        'image': 'assets/sosro.png'
+      },
+      {
+        'name': 'Burger King Medium',
+        'price': 'Rp. 50.000,00',
+        'image': 'assets/burger.png'
+      },
+      {
+        'name': 'Burger King Medium',
+        'price': 'Rp. 50.000,00',
+        'image': 'assets/burger.png'
+      },
+      {
+        'name': 'Teh Botol',
+        'price': 'Rp. 4.000,00',
+        'image': 'assets/sosro.png'
+      },
+      {
+        'name': 'Teh Botol',
+        'price': 'Rp. 4.000,00',
+        'image': 'assets/sosro.png'
+      },
       {
         'name': 'Burger King Medium',
         'price': 'Rp. 50.000,00',

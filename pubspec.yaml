@@ -14,6 +14,9 @@ dependencies:
 
   cupertino_icons: ^1.0.8
   google_fonts: ^6.2.1
+  image_picker: ^1.1.2
+  flutter_native_splash: ^2.4.2
+  supabase_flutter: ^2.8.1
 
 dev_dependencies:
   flutter_test:
@@ -26,3 +29,13 @@ flutter:
   assets:
   - assets/burger.png
   - assets/sosro.png
+
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/burger.png
+  android: true
+  ios: true
+  fullscreen: true
+  android_gravity: center
+  ios_content_mode: scaleAspectFill
+  web: true
