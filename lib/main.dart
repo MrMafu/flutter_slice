@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'cart.dart';
 import 'food_data.dart';
 import 'widgets.dart';
+import 'class/food.dart';
+import 'class/food_service.dart';
 
 Future<void> main() async {
   await Supabase.initialize(
@@ -30,6 +32,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String? selectedCategory;
+  List<Food> filteredFoodItems = [];
 
   @override
   Widget build(BuildContext context) {
@@ -149,10 +152,14 @@ class _MyAppState extends State<MyApp> {
           ),
           child: InkWell(
             borderRadius: BorderRadius.circular(10),
-            onTap: () => setState(() {
-              selectedCategory =
-                  selectedCategory == categoryName ? null : categoryName;
-            }),
+            onTap: () {
+              setState(() {
+                selectedCategory =
+                    selectedCategory == categoryName ? null : categoryName;
+                filteredFoodItems.clear(); // Clear previous filter
+              });
+              fetchFilteredFoods(categoryName);
+            },
             child: Image.asset(
               imagePath,
               width: 60,
@@ -170,79 +177,70 @@ class _MyAppState extends State<MyApp> {
   }
 
   Widget foodItem() {
-    final foodList = [
-      {
-        'name': 'Burger King Medium',
-        'price': 'Rp. 50.000,00',
-        'image': 'assets/burger.png'
-      },
-      {
-        'name': 'Teh Botol',
-        'price': 'Rp. 4.000,00',
-        'image': 'assets/sosro.png'
-      },
-      {
-        'name': 'Burger King Medium',
-        'price': 'Rp. 50.000,00',
-        'image': 'assets/burger.png'
-      },
-      {
-        'name': 'Burger King Medium',
-        'price': 'Rp. 50.000,00',
-        'image': 'assets/burger.png'
-      },
-      {
-        'name': 'Teh Botol',
-        'price': 'Rp. 4.000,00',
-        'image': 'assets/sosro.png'
-      },
-      {
-        'name': 'Teh Botol',
-        'price': 'Rp. 4.000,00',
-        'image': 'assets/sosro.png'
-      },
-      {
-        'name': 'Burger King Medium',
-        'price': 'Rp. 50.000,00',
-        'image': 'assets/burger.png'
-      },
-      {
-        'name': 'Teh Botol',
-        'price': 'Rp. 4.000,00',
-        'image': 'assets/sosro.png'
-      },
-    ];
+    return FutureBuilder<List<Food>>(
+      future: FoodService().fetchFoods(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('No food items available.'));
+        }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'All Food',
-          style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 20),
-        Expanded(
-          child: GridView.builder(
-            padding: const EdgeInsets.all(10),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
-              childAspectRatio: 0.8,
+        final foodList = snapshot.data!;
+
+        // Filter the food list based on the selected category
+        final filteredFoods = selectedCategory == null
+            ? foodList
+            : foodList
+                .where((food) =>
+                    food.category?.name == selectedCategory)
+                .toList();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              selectedCategory ?? 'All Food',
+              style: GoogleFonts.poppins(
+                  fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            itemCount: foodList.length,
-            itemBuilder: (context, index) {
-              final item = foodList[index];
-              return foodItemContainer(
-                item['name'] ?? 'Item',
-                item['price'] ?? 'Rp. 0',
-                item['image'] ?? 'assets/placeholder.png',
-              );
-            },
-          ),
-        ),
-      ],
+            const SizedBox(height: 20),
+            Expanded(
+              child: GridView.builder(
+                padding: const EdgeInsets.all(10),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  childAspectRatio: 0.8,
+                ),
+                itemCount: filteredFoods.length,
+                itemBuilder: (context, index) {
+                  final foodItem = filteredFoods[index];
+                  return foodItemContainer(
+                    foodItem.name,
+                    'Rp. ${foodItem.price.toStringAsFixed(2)}',
+                    foodItem.image,
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
     );
+  }
+
+  // Function to fetch foods based on selected category
+  Future<void> fetchFilteredFoods(String categoryName) async {
+    final allFoods = await FoodService().fetchFoods();
+    setState(() {
+      filteredFoodItems = allFoods
+          .where((food) => food.category?.name == categoryName)
+          .toList();
+    });
   }
 
   Widget foodItemContainer(String name, String price, String image) {
@@ -265,7 +263,7 @@ class _MyAppState extends State<MyApp> {
         child: Column(
           children: [
             Expanded(
-              child: Image.asset(image, fit: BoxFit.contain),
+              child: Image.network(image, fit: BoxFit.contain),
             ),
             const SizedBox(height: 5),
             Row(

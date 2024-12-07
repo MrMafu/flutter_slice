@@ -3,9 +3,38 @@ import 'package:google_fonts/google_fonts.dart';
 import 'widgets.dart';
 import 'main.dart';
 import 'add_data.dart';
+import 'class/food_service.dart';
+import 'class/food.dart';
 
-class MyData extends StatelessWidget {
+class MyData extends StatefulWidget {
   const MyData({super.key});
+
+  @override
+  _MyDataState createState() => _MyDataState();
+}
+
+class _MyDataState extends State<MyData> {
+  List<Food> _foodList = [];
+  final FoodService _foodService = FoodService();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchFoodData();
+  }
+
+  Future<void> _fetchFoodData() async {
+    try {
+      final foodList = await _foodService.fetchFoods();
+      if (mounted) {
+        setState(() {
+          _foodList = foodList;
+        });
+      }
+    } catch (e) {
+      print("Error fetching food data: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +69,7 @@ class MyData extends StatelessWidget {
             ),
           ),
         ),
-        body: Container(
+        body: Padding(
           padding: const EdgeInsets.all(30),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,9 +117,12 @@ class MyData extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 20),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: foodTable(),
+              // Wrap the DataTable in an Expanded widget
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal, // Horizontal scroll
+                  child: foodTable(), // foodTable widget
+                ),
               ),
             ],
           ),
@@ -102,47 +134,44 @@ class MyData extends StatelessWidget {
   Widget foodTable() {
     return DataTable(
       columnSpacing: 15,
+      horizontalMargin: 0,
       columns: [
         DataColumn(label: Text('Foto', style: GoogleFonts.poppins(fontSize: 10))),
         DataColumn(label: Text('Nama Produk', style: GoogleFonts.poppins(fontSize: 10))),
         DataColumn(label: Text('Harga', style: GoogleFonts.poppins(fontSize: 10))),
         DataColumn(label: Text('Aksi', style: GoogleFonts.poppins(fontSize: 10))),
       ],
-      rows: [
-        DataRow(cells: [
-          DataCell(Image.asset('assets/burger.png', width: 50, height: 50)),
-          DataCell(Text('Burger King Medium', style: GoogleFonts.poppins(fontSize: 10))),
-          DataCell(Text('Rp.50.000,00', style: GoogleFonts.poppins(fontSize: 10))),
+      rows: _foodList.map((food) {
+        return DataRow(cells: [
+          DataCell(
+            Image.network(food.image, width: 50, height: 50),
+          ),
+          DataCell(Text(food.name, style: GoogleFonts.poppins(fontSize: 10))),
+          DataCell(Text('Rp. ${food.price.toStringAsFixed(2)}', style: GoogleFonts.poppins(fontSize: 10))),
           DataCell(
             IconButton(
               icon: Icon(Icons.delete, color: Colors.red),
-              onPressed: () {},
+              onPressed: () async {
+                try {
+                  await _foodService.deleteFoodByName(food.name);
+                  setState(() {
+                    _foodList.remove(food);
+                  });
+                  await _fetchFoodData();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('${food.name} deleted successfully.')),
+                  );
+                } catch (e) {
+                  print("Error deleting food: $e");
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Failed to delete ${food.name}. Reason: $e')),
+                  );
+                }
+              },
             ),
           ),
-        ]),
-        DataRow(cells: [
-          DataCell(Image.asset('assets/sosro.png', width: 50, height: 50)),
-          DataCell(Text('Teh Botol', style: GoogleFonts.poppins(fontSize: 10))),
-          DataCell(Text('Rp.4.000,00', style: GoogleFonts.poppins(fontSize: 10))),
-          DataCell(
-            IconButton(
-              icon: Icon(Icons.delete, color: Colors.red),
-              onPressed: () {},
-            ),
-          ),
-        ]),
-        DataRow(cells: [
-          DataCell(Image.asset('assets/burger.png', width: 50, height: 50)),
-          DataCell(Text('Burger King Small', style: GoogleFonts.poppins(fontSize: 10))),
-          DataCell(Text('Rp.35.000,00', style: GoogleFonts.poppins(fontSize: 10))),
-          DataCell(
-            IconButton(
-              icon: Icon(Icons.delete, color: Colors.red),
-              onPressed: () {},
-            ),
-          ),
-        ]),
-      ],
+        ]);
+      }).toList(),
     );
   }
 }
